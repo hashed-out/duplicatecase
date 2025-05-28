@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duplicate Case Detection - EthicsPoint</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+            background-color: #f8f9fa;
+        }
+
+        section {
+            padding: 80px 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, h4 {
+            margin-bottom: 20px;
+            color: #1a3a5f;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        button:hover, .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Header & Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a3a5f;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .logo span {
+            color: #4f46e5;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            position: relative;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #4f46e5;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #4f46e5;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #1a3a5f;
+        }
+
+        /* Solution Section */
+        #solution {
+            background-color: white;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .step-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background-color: #f0f4ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #4f46e5;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #1a3a5f;
+        }
+
+        .workflow {
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 50px;
+        }
+
+        .workflow-steps::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #e5e7eb;
+            z-index: 1;
+        }
+
+        .workflow-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 60px;
+        }
+
+        .workflow-step-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .workflow-step-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Benefits Section */
+        #benefits {
+            background-color: #f8f9fa;
+        }
+
+        .benefits-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .benefit-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .benefit-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #1a3a5f;
+        }
+
+        /* Tech Section */
+        #tech {
+            background-color: white;
+        }
+
+        .tech-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .tech-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .tech-card:hover {
+            transform: scale(1.05);
+            background-color: #f0f4ff;
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .tech-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a3a5f;
+        }
+
+        .tech-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1a3a5f;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            width: 200px;
+            z-index: 100;
+        }
+
+        .tech-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px;
+            border-style: solid;
+            border-color: #1a3a5f transparent transparent transparent;
+        }
+
+        .tech-card:hover .tech-tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: calc(100% + 15px);
+        }
+
+        /* Demo Section */
+        #demo {
+            background: linear-gradient(135deg, #f0f4ff, #e5e7eb);
+        }
+
+        .demo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .demo-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1a3a5f;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .demo-result {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            display: none;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #1a3a5f;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-title i {
+            margin-right: 10px;
+            color: #ef4444;
+        }
+
+        .duplicate-case {
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .duplicate-case-title {
+            font-weight: 600;
+            color: #1a3a5f;
+            margin-bottom: 5px;
+        }
+
+        .duplicate-match {
+            font-size: 0.9rem;
+            color: #ef4444;
+            font-weight: 500;
+        }
+
+        /* Demo Media Section */
+        .demo-media-container {
+            position: relative;
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        .demo-media-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 20px 10px;
+            gap: 25px;
+            -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+            scrollbar-width: none;  /* Hide scrollbar for Firefox */
+        }
+
+        .demo-media-scroll::-webkit-scrollbar {
+            display: none;  /* Hide scrollbar for Chrome, Safari and Opera */
+        }
+
+        .demo-card {
+            flex: 0 0 auto;
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-media {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .demo-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .demo-card:hover .demo-media img {
+            transform: scale(1.05);
+        }
+
+        .video-media::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .demo-card:hover .video-media::after {
+            opacity: 1;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(79, 70, 229, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .demo-card:hover .play-button {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .demo-info {
+            padding: 20px;
+        }
+
+        .demo-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #1a3a5f;
+        }
+
+        .demo-info p {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        .demo-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .demo-nav-arrow:hover {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .demo-nav-left {
+            left: 10px;
+        }
+
+        .demo-nav-right {
+            right: 10px;
+        }
+
+        .arrow-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        /* Responsive adjustments for demo media section */
+        @media (max-width: 768px) {
+            .demo-card {
+                width: 280px;
+            }
+            
+            .demo-media {
+                height: 180px;
+            }
+            
+            .demo-nav-arrow {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .demo-card {
+                width: 85%;
+                min-width: 250px;
+            }
+            
+            .demo-media-scroll {
+                padding: 15px 5px;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1a3a5f;
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a {
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .footer-col ul li a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background-color: #4f46e5;
+            transform: translateY(-5px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .animate-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Digital Background Animation */
+        .digital-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .digital-particle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .workflow-steps {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            
+            .workflow-steps::before {
+                width: 3px;
+                height: 100%;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 60px 0;
+            }
+            
+            .header-container {
+                padding: 15px;
+            }
+            
+            nav {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: all 0.3s ease;
+                z-index: 999;
+            }
+            
+            nav.active {
+                transform: translateY(0);
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav ul li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .demo-form {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <span>Duplicate</span>Case Detection
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+          
+        </div>
+    </header>
+
+    <!-- Hero Section
+    <section id="hero">
+        <div class="digital-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Detect and Resolve Duplicate Cases with AI Efficiency</h1>
+                <p class="hero-subtitle">Streamline your EthicsPoint workflow with intelligent duplicate detection</p>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Solution Section -->
+    <section id="solution">
+        <div class="container">
+            <h2>How AI-Based Duplicate Case Detection Works</h2>
+            <div class="steps-container">
+                <div class="step-card animate-on-scroll">
+                    <div class="step-icon">1</div>
+                    <h3 class="step-title">Compare</h3>
+                    <p>Our AI engine analyzes new cases against existing ones using advanced natural language processing to identify similarities.</p>
+                </div>
+                <div class="step-card animate-on-scroll">
+                    <div class="step-icon">2</div>
+                    <h3 class="step-title">Flag</h3>
+                    <p>Potential duplicates are automatically flagged with a confidence score to help prioritize review.</p>
+                </div>
+                <div class="step-card animate-on-scroll">
+                    <div class="step-icon">3</div>
+                    <h3 class="step-title">Warn</h3>
+                    <p>The system alerts case managers about potential duplicates before they invest time in processing.</p>
+                </div>
+                <div class="step-card animate-on-scroll">
+                    <div class="step-icon">4</div>
+                    <h3 class="step-title">Merge</h3>
+                    <p>Easily combine duplicate cases while preserving all relevant information and maintaining an audit trail.</p>
+                </div>
+            </div>
+            
+            <div class="workflow animate-on-scroll">
+                <h3 style="text-align: center; margin-bottom: 30px;">Workflow</h3>
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">1</div>
+                        <div class="workflow-step-text">Case Submission</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">2</div>
+                        <div class="workflow-step-text">AI Analysis</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">3</div>
+                        <div class="workflow-step-text">Duplicate Detection</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">4</div>
+                        <div class="workflow-step-text">Case Resolution</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits">
+        <div class="container">
+            <h2>Why Choose Our Solution?</h2>
+            <div class="benefits-container">
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">📊</div>
+                    <h3 class="benefit-title">Reduce Redundant Reports</h3>
+                    <p>Identify and consolidate duplicate cases to maintain a clean and manageable case database.</p>
+                </div>
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">⏱️</div>
+                    <h3 class="benefit-title">Save HR Time</h3>
+                    <p>Eliminate hours spent manually reviewing similar cases and focus on resolving unique issues.</p>
+                </div>
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">✅</div>
+                    <h3 class="benefit-title">Ensure Consistent Resolutions</h3>
+                    <p>Maintain consistency in how similar cases are handled across your organization.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Section -->
+    <section id="tech">
+        <div class="container">
+            <h2>Powerful Tech Stack Behind the Solution</h2>
+            <div class="tech-container">
+                <div class="tech-card animate-on-scroll">
+                    <div class="tech-icon">🧠</div>
+                    <h3 class="tech-title">ML.NET</h3>
+                    <div class="tech-tooltip">Microsoft's machine learning framework for building custom AI models with C#.</div>
+                </div>
+                <div class="tech-card animate-on-scroll">
+                    <div class="tech-icon">🗄️</div>
+                    <h3 class="tech-title">SQL Server</h3>
+                    <div class="tech-tooltip">Enterprise-grade database for secure and reliable data storage and retrieval.</div>
+                </div>
+                <div class="tech-card animate-on-scroll">
+                    <div class="tech-icon">🔄</div>
+                    <h3 class="tech-title">ASP.NET MVC</h3>
+                    <div class="tech-tooltip">Robust framework for building scalable web applications with C#.</div>
+                </div>
+                <div class="tech-card animate-on-scroll">
+                    <div class="tech-icon">⚛️</div>
+                    <h3 class="tech-title">React</h3>
+                    <div class="tech-tooltip">JavaScript library for building fast and responsive user interfaces.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo">
+        <div class="container">
+            <h2>Explore Demos</h2>
+            <div class="demo-media-container animate-on-scroll">
+                <div class="demo-nav-arrow demo-nav-left">
+                    <div class="arrow-icon">❮</div>
+                </div>
+                
+                <div class="demo-media-scroll">
+                    <div class="demo-card">
+                        <div class="demo-media">
+                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d5a9a0791%20text%20%7B%20fill%3A%23555%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d5a9a0791%22%3E%3Crect%20width%3D%22800%22%20height%3D%22500%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22285.9140625%22%20y%3D%22267.1%22%3EDashboard%20View%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Dashboard Demo">
+                        </div>
+                        <div class="demo-info">
+                            <h3>Dashboard Overview</h3>
+                            <p>Comprehensive view of all cases with duplicate detection metrics</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-card">
+                        <div class="demo-media video-media">
+                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d5a9a0791%20text%20%7B%20fill%3A%23555%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d5a9a0791%22%3E%3Crect%20width%3D%22800%22%20height%3D%22500%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22285.9140625%22%20y%3D%22267.1%22%3ECase%20Analysis%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Case Analysis Video">
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="demo-info">
+                            <h3>Case Analysis</h3>
+                            <p>Watch how our AI analyzes case content to identify potential duplicates</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-card">
+                        <div class="demo-media">
+                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d5a9a0791%20text%20%7B%20fill%3A%23555%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d5a9a0791%22%3E%3Crect%20width%3D%22800%22%20height%3D%22500%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22285.9140625%22%20y%3D%22267.1%22%3EComparison%20View%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Comparison View">
+                        </div>
+                        <div class="demo-info">
+                            <h3>Comparison View</h3>
+                            <p>Side-by-side comparison of potentially duplicate cases</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-card">
+                        <div class="demo-media video-media">
+                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d5a9a0791%20text%20%7B%20fill%3A%23555%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d5a9a0791%22%3E%3Crect%20width%3D%22800%22%20height%3D%22500%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22285.9140625%22%20y%3D%22267.1%22%3EMerge%20Process%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Merge Process Video">
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="demo-info">
+                            <h3>Merge Process</h3>
+                            <p>See how cases are merged while preserving all relevant information</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-card">
+                        <div class="demo-media">
+                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d5a9a0791%20text%20%7B%20fill%3A%23555%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d5a9a0791%22%3E%3Crect%20width%3D%22800%22%20height%3D%22500%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22285.9140625%22%20y%3D%22267.1%22%3EAnalytics%20Dashboard%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Analytics Dashboard">
+                        </div>
+                        <div class="demo-info">
+                            <h3>Analytics Dashboard</h3>
+                            <p>Track efficiency gains and case resolution metrics</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-card">
+                        <div class="demo-media video-media">
+                            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d5a9a0791%20text%20%7B%20fill%3A%23555%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d5a9a0791%22%3E%3Crect%20width%3D%22800%22%20height%3D%22500%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22285.9140625%22%20y%3D%22267.1%22%3EFull%20Demo%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Full Demo Video">
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="demo-info">
+                            <h3>Full System Demo</h3>
+                            <p>Complete walkthrough of the duplicate case detection system</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-nav-arrow demo-nav-right">
+                    <div class="arrow-icon">❯</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const nav = document.querySelector('nav');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            nav.classList.toggle('active');
+            mobileMenuBtn.textContent = nav.classList.contains('active') ? '✕' : '☰';
+        });
+        
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (nav.classList.contains('active')) {
+                    nav.classList.remove('active');
+                    mobileMenuBtn.textContent = '☰';
+                }
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Scroll Animation
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        function checkScroll() {
+            animateElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', checkScroll);
+        window.addEventListener('load', checkScroll);
+        
+        // Sticky Header
+        const header = document.querySelector('header');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.style.padding = '5px 0';
+                header.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+            } else {
+                header.style.padding = '';
+                header.style.boxShadow = '';
+            }
+        });
+        
+        // Digital Background Animation
+        const digitalBg = document.querySelector('.digital-bg');
+        
+        function createParticles() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('digital-particle');
+                
+                const size = Math.random() * 5 + 1;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animation = `fadeIn ${duration}s infinite alternate ${delay}s`;
+                
+                digitalBg.appendChild(particle);
+            }
+        }
+        
+        createParticles();
+        
+        // Demo Form Functionality
+        const submitBtn = document.getElementById('submit-case');
+        const resultContainer = document.getElementById('result-container');
+        
+        submitBtn.addEventListener('click', () => {
+            const caseTitle = document.getElementById('case-title').value;
+            const caseDescription = document.getElementById('case-description').value;
+            
+            if (caseTitle && caseDescription) {
+                resultContainer.style.display = 'block';
+                
+                // Animate the result container
+                setTimeout(() => {
+                    resultContainer.style.opacity = '1';
+                    resultContainer.style.transform = 'translateY(0)';
+                }, 100);
+                
+                // Scroll to result
+                setTimeout(() => {
+                    resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+                
+                // Add blinking animation to highlight duplicates
+                const duplicateCases = document.querySelectorAll('.duplicate-case');
+                duplicateCases.forEach((caseEl, index) => {
+                    setTimeout(() => {
+                        caseEl.style.animation = 'fadeIn 0.5s ease forwards';
+                        caseEl.style.backgroundColor = '#fef2f2';
+                        
+                        setTimeout(() => {
+                            caseEl.style.backgroundColor = '#fff5f5';
+                        }, 500);
+                        
+                        setTimeout(() => {
+                            caseEl.style.backgroundColor = '#fef2f2';
+                        }, 1000);
+                    }, index * 300);
+                });
+            } else {
+                alert('Please fill in the case title and description fields.');
+            }
+        });
+
+        // Demo Media Scroll Navigation
+        const demoScrollContainer = document.querySelector('.demo-media-scroll');
+        const leftArrow = document.querySelector('.demo-nav-left');
+        const rightArrow = document.querySelector('.demo-nav-right');
+        const cardWidth = 375; // Card width + gap
+
+        if (leftArrow && rightArrow && demoScrollContainer) {
+            leftArrow.addEventListener('click', () => {
+                demoScrollContainer.scrollBy({
+                    left: -cardWidth,
+                    behavior: 'smooth'
+                });
+            });
+            
+            rightArrow.addEventListener('click', () => {
+                demoScrollContainer.scrollBy({
+                    left: cardWidth,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Hide arrows when not needed
+            function updateArrowVisibility() {
+                const scrollLeft = demoScrollContainer.scrollLeft;
+                const maxScrollLeft = demoScrollContainer.scrollWidth - demoScrollContainer.clientWidth;
+                
+                leftArrow.style.opacity = scrollLeft <= 0 ? '0.5' : '1';
+                leftArrow.style.pointerEvents = scrollLeft <= 0 ? 'none' : 'auto';
+                
+                rightArrow.style.opacity = scrollLeft >= maxScrollLeft ? '0.5' : '1';
+                rightArrow.style.pointerEvents = scrollLeft >= maxScrollLeft ? 'none' : 'auto';
+            }
+            
+            demoScrollContainer.addEventListener('scroll', updateArrowVisibility);
+            window.addEventListener('resize', updateArrowVisibility);
+            
+            // Initial check
+            setTimeout(updateArrowVisibility, 100);
+        }
+
+        // Video Play Button Functionality
+        const playButtons = document.querySelectorAll('.play-button');
+
+        playButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // In a real implementation, this would play the video
+                // For this demo, we'll just show an alert
+                alert('Video would play here in a production environment');
+            });
+        });
+    </script>
+</body>
+</html>
